@@ -214,29 +214,23 @@ AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[Enable debug mode]),[
    AC_CHECK_LIB(ncurses, initscr, have_ncurses_lib=yes, , )
    AC_CHECK_LIB(pdcurses, initscr, have_pdcurses_lib=yes, , )
 
-   if test x$enable_debug = xno; then
-     AC_MSG_RESULT([Debugger not enabled])
-   elif test x$have_curses_lib = xyes -a x$have_curses_h = xyes ; then
-     LIBS="$LIBS -lcurses"
+#   if test x$enable_debug = xno; then
+#     AC_MSG_RESULT([Debugger not enabled])
+#   elif test x$have_curses_lib = xyes -a x$have_curses_h = xyes ; then
+#     LIBS="$LIBS -lcurses"
      AC_DEFINE(C_DEBUG,1)
-     if test x$enable_debug = xheavy ; then 
-       AC_DEFINE(C_HEAVY_DEBUG,1)
-     fi
-   elif test x$have_ncurses_lib = xyes -a x$have_curses_h = xyes ; then
-     LIBS="$LIBS -lncurses"
-     AC_DEFINE(C_DEBUG,1)
-     if test x$enable_debug = xheavy ; then 
-       AC_DEFINE(C_HEAVY_DEBUG,1)
-     fi
-   elif test x$have_pdcurses_lib = xyes -a x$have_curses_h = xyes ; then
-     LIBS="$LIBS -lpdcurses"
-     AC_DEFINE(C_DEBUG,1)
-     if test x$enable_debug = xheavy ; then 
-       AC_DEFINE(C_HEAVY_DEBUG,1)
-     fi
-   else 
-     AC_MSG_ERROR([Can't find curses, which is required for debug mode])
-   fi
+#     if test x$enable_debug = xheavy ; then 
+#       AC_DEFINE(C_HEAVY_DEBUG,1)
+#     fi
+#   elif test x$have_pdcurses_lib = xyes -a x$have_curses_h = xyes ; then
+#     LIBS="$LIBS -lpdcurses"
+#     AC_DEFINE(C_DEBUG,1)
+#     if test x$enable_debug = xheavy ; then 
+#       AC_DEFINE(C_HEAVY_DEBUG,1)
+#     fi
+#   else 
+#     AC_MSG_WARN([Can't find curses, debug mode disabled])
+#   fi
 ],)
 
 AH_TEMPLATE(C_CORE_INLINE,[Define to 1 to use inlined memory functions in cpu core])

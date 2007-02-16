@@ -59,6 +59,10 @@ void DEBUG_ShowMsg(char const* format,...) {
 	vsprintf(buf,format,msg);
 	va_end(msg);
 
+//ERIC
+printf("%s",buf);
+return;
+
 	/* Add newline if not present */
 	Bitu len=strlen(buf);
 	if(buf[len-1]!='\n') strcat(buf,"\n");
@@ -80,6 +84,7 @@ void DEBUG_ShowMsg(char const* format,...) {
 }
 
 void DEBUG_RefreshPage(char scroll) {
+/*
 	if (scroll==-1 && logBuffPos!=logBuff.begin()) logBuffPos--;
 	else if (scroll==1 && logBuffPos!=logBuff.end()) logBuffPos++;
 
@@ -94,11 +99,12 @@ void DEBUG_RefreshPage(char scroll) {
 		--i;
 		for (string::size_type posf=0, posl; (posl=(*i).find('\n',posf)) != string::npos ;posf=posl+1)
 			rem_lines -= (int) ((posl-posf) / maxx) + 1; // len=(posl+1)-posf-1
-		/* Const cast is needed for pdcurses which has no const char in mvwprintw (bug maybe) */
+		// Const cast is needed for pdcurses which has no const char in mvwprintw (bug maybe)
 		mvwprintw(dbg.win_out,rem_lines-1, 0, const_cast<char*>((*i).c_str()));
 	}
 	mvwprintw(dbg.win_out,maxy-1, 0, "");
 	wrefresh(dbg.win_out);
+*/
 }
 
 void LOG::operator() (char const* format, ...){
@@ -162,23 +168,24 @@ static void DrawBars(void) {
 
 
 static void MakeSubWindows(void) {
-	/* The Std output win should go at the bottom */
-	/* Make all the subwindows */
+/*ERIC
+	// The Std output win should go at the bottom
+	// Make all the subwindows
 	int win_main_maxy, win_main_maxx; getmaxyx(dbg.win_main,win_main_maxy,win_main_maxx);
 	int outy=1; //Match values with above
-	/* The Register window  */
+	// The Register window
 	dbg.win_reg=subwin(dbg.win_main,4,win_main_maxx,outy,0);
 	outy+=5; // 6
-	/* The Data Window */
+	// The Data Window
 	dbg.win_data=subwin(dbg.win_main,8,win_main_maxx,outy,0);
 	outy+=9; // 15
-	/* The Code Window */
+	// The Code Window
 	dbg.win_code=subwin(dbg.win_main,11,win_main_maxx,outy,0);
 	outy+=12; // 27
-	/* The Variable Window */
+	// The Variable Window
 	dbg.win_var=subwin(dbg.win_main,4,win_main_maxx,outy,0);
 	outy+=5; // 32
-	/* The Output Window */	
+	// The Output Window
 	dbg.win_out=subwin(dbg.win_main,win_main_maxy-outy,win_main_maxx,outy,0);
 	if(!dbg.win_reg ||!dbg.win_data || !dbg.win_code || !dbg.win_var || !dbg.win_out) E_Exit("Setting up windows failed");
 //	dbg.input_y=win_main_maxy-1;
@@ -186,6 +193,7 @@ static void MakeSubWindows(void) {
 	DrawBars();
 	Draw_RegisterLayout();
 	refresh();
+*/
 }
 
 static void MakePairs(void) {
@@ -269,22 +277,23 @@ void LOG_StartUp(void) {
 
 void DBGUI_StartUp(void) {
 	/* Start the main window */
-	dbg.win_main=initscr();
-	cbreak();       /* take input chars one at a time, no wait for \n */
-	noecho();       /* don't echo input */
-	nodelay(dbg.win_main,true);
-	keypad(dbg.win_main,true);
-	#ifndef WIN32
-	printf("\e[8;50;80t");
-	fflush(NULL);
-	resizeterm(50,80);
-	touchwin(dbg.win_main);
-	#endif
-	old_cursor_state = curs_set(0);
-	start_color();
-	cycle_count=0;
-	MakePairs();
-	MakeSubWindows();
+//	dbg.win_main=initscr();
+//ERIC
+//	cbreak();       /* take input chars one at a time, no wait for \n */
+//	noecho();       /* don't echo input */
+//	nodelay(dbg.win_main,true);
+//	keypad(dbg.win_main,true);
+//	#ifndef WIN32
+//	printf("\e[8;50;80t");
+//	fflush(NULL);
+//	resizeterm(50,80);
+//	touchwin(dbg.win_main);
+//	#endif
+//	old_cursor_state = curs_set(0);
+//	start_color();
+//	cycle_count=0;
+//	MakePairs();
+//	MakeSubWindows();
 
 }
 
