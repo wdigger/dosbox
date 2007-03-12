@@ -77,6 +77,7 @@ bool DEBUG_AddMemBreakPoint(Bit32u address);
 bool DEBUG_DelBreakPoint(PhysPt address);
 int DEBUG_Continue(void);
 int DEBUG_ContinueWithoutDebug();
+string DEBUG_GetFileName();
 
 char* AnalyzeInstruction(char* inst, bool saveSelector);
 Bit32u GetHexValue(char* str, char*& hex);
@@ -2681,6 +2682,16 @@ int DEBUG_ContinueWithoutDebug()
   DOSBOX_SetNormalLoop();
   
   return 1;
+}
+
+string DEBUG_GetFileName()
+{
+  string filename = "";
+  
+  if(pDebugcom != 0)
+    filename = pDebugcom->GetFileName();
+  
+  return filename;
 }
 
 #endif // DEBUG
