@@ -228,21 +228,42 @@ AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[Enable debug mode]),[
        AC_DEFINE(C_DEBUG,1)
        AC_DEFINE(C_IDA_DEBUG,1)
        AC_DEFINE(C_IDA_64BIT,0)
+       AC_DEFINE(C_HEAVY_DEBUG,1)
      elif test x$enable_debug = xida32; then
        AC_MSG_RESULT([Building remote debugger (32 bit)])
        AC_DEFINE(C_DEBUG,1)
        AC_DEFINE(C_IDA_DEBUG,1)
        AC_DEFINE(C_IDA_64BIT,0)
+       AC_DEFINE(C_HEAVY_DEBUG,1)
      elif test x$enable_debug = xida64; then
        AC_MSG_RESULT([Building remote debugger (64 bit)])
        AC_DEFINE(C_DEBUG,1)
        AC_DEFINE(C_IDA_DEBUG,1)
        AC_DEFINE(C_IDA_64BIT,1)
+       AC_DEFINE(C_HEAVY_DEBUG,1)
      fi
    elif test x$have_pdcurses_lib = xyes -a x$have_curses_h = xyes ; then
      LIBS="$LIBS -lpdcurses"
      AC_DEFINE(C_DEBUG,1)
      if test x$enable_debug = xheavy ; then 
+       AC_DEFINE(C_HEAVY_DEBUG,1)
+     elif test x$enable_debug = xida; then
+       AC_MSG_RESULT([Building remote debugger (32 bit)])
+       AC_DEFINE(C_DEBUG,1)
+       AC_DEFINE(C_IDA_DEBUG,1)
+       AC_DEFINE(C_IDA_64BIT,0)
+       AC_DEFINE(C_HEAVY_DEBUG,1)
+     elif test x$enable_debug = xida32; then
+       AC_MSG_RESULT([Building remote debugger (32 bit)])
+       AC_DEFINE(C_DEBUG,1)
+       AC_DEFINE(C_IDA_DEBUG,1)
+       AC_DEFINE(C_IDA_64BIT,0)
+       AC_DEFINE(C_HEAVY_DEBUG,1)
+     elif test x$enable_debug = xida64; then
+       AC_MSG_RESULT([Building remote debugger (64 bit)])
+       AC_DEFINE(C_DEBUG,1)
+       AC_DEFINE(C_IDA_DEBUG,1)
+       AC_DEFINE(C_IDA_64BIT,1)
        AC_DEFINE(C_HEAVY_DEBUG,1)
      fi
    else 
@@ -503,6 +524,9 @@ dnl Some target detection and actions for them
 case "$host" in
     *-*-cygwin* | *-*-mingw32*)
        LIBS="$LIBS -lwinmm"
+       if test x$enable_debug = xida; then
+         CPPFLAGS="$CPPFLAGS -D__NT__"
+       fi
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial passthrough support (Win32, Posix and OS/2 only).])
        if test x$have_sdl_net_lib = xyes -a x$have_sdl_net_h = xyes ; then
          LIBS="$LIBS -lws2_32"
@@ -516,6 +540,9 @@ case "$host" in
        AC_DEFINE(MACOSX, 1, [Compiling on Mac OS X])
        LIBS="$LIBS -framework CoreMIDI -framework AudioUnit -framework AudioToolbox"
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial passthrough support (Win32, Posix and OS/2).])
+       if test x$enable_debug = xida; then
+         CPPFLAGS="$CPPFLAGS -D__MAC__"
+       fi
        ;;
     *-*-linux*)
        AC_DEFINE(LINUX, 1, [Compiling on GNU/Linux])

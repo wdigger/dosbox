@@ -49,6 +49,8 @@ using namespace std;
 #include "keyboard.h"
 #include "setup.h"
 
+#include "server.h" //ida interface functions.
+
 #ifdef WIN32
 void WIN32_Console();
 #else
@@ -127,7 +129,8 @@ static char curSelectorName[3] = { 0,0,0 };
 
 static Segment oldsegs[6];
 static Bitu oldflags,oldcpucpl;
-DBGBlock dbg;
+DBGBlock cursesDbg; //ERIC renamed from dbg
+static Bitu input_count;
 Bitu cycle_count;
 static bool debugging;
 
@@ -135,9 +138,9 @@ static bool debugging;
 static void SetColor(Bitu test) {
 #if 0
 	if (test) {
-		if (has_colors()) { wattrset(dbg.win_reg,COLOR_PAIR(PAIR_BYELLOW_BLACK));}
+		if (has_colors()) { wattrset(cursesDbg.win_reg,COLOR_PAIR(PAIR_BYELLOW_BLACK));}
 	} else {
-		if (has_colors()) { wattrset(dbg.win_reg,0);}
+		if (has_colors()) { wattrset(cursesDbg.win_reg,0);}
 	}
 #endif
 }
@@ -173,7 +176,7 @@ static list<string>::iterator histBuffPos = histBuff.end();
 
 Bit32u GetAddress(Bit16u seg, Bit32u offset);
 
-#include "debug_remote_inc.h"
+//#include "debug_remote_inc.h"
 
 /***********/
 /* Helpers */
@@ -558,6 +561,8 @@ void CBreakpoint::DeleteAll()
 	for(i=BPoints.begin(); i != BPoints.end(); i++) {
 		bp = (*i);
 		bp->Activate(false);
+			if(ignoreOnce == bp)
+				ignoreOnce = 0;
 		delete bp;
 	};
 	(BPoints.clear)();
@@ -575,6 +580,8 @@ bool CBreakpoint::DeleteByIndex(Bit16u index)
 			bp = (*i);
 			(BPoints.erase)(i);
 			bp->Activate(false);
+			if(ignoreOnce == bp)
+				ignoreOnce = 0;
 			delete bp;
 			return true;
 		}
@@ -682,7 +689,7 @@ bool DEBUG_IntBreakpoint(Bit8u intNum)
     
   //ERIC
   DEBUG_RemoteBreakpoint(where);
-    
+
 	return true;
 };
 
@@ -731,92 +738,92 @@ static void DrawData(void) {
 	/* Data win */	
 	for (int y=0; y<8; y++) {
 		// Address
-		if (add<0x10000) mvwprintw (dbg.win_data,y,0,"%04X:%04X     ",dataSeg,add);
-		else mvwprintw (dbg.win_data,y,0,"%04X:%08X ",dataSeg,add);
+		if (add<0x10000) mvwprintw (cursesDbg.win_data,y,0,"%04X:%04X     ",dataSeg,add);
+		else mvwprintw (cursesDbg.win_data,y,0,"%04X:%08X ",dataSeg,add);
 		for (int x=0; x<16; x++) {
 			address = GetAddress(dataSeg,add);
 			if (mem_readb_checked(address,&ch)) ch=0;
-			mvwprintw (dbg.win_data,y,14+3*x,"%02X",ch);
+			mvwprintw (cursesDbg.win_data,y,14+3*x,"%02X",ch);
 			if (ch<32 || !isprint(*reinterpret_cast<unsigned char*>(&ch))) ch='.';
-			mvwprintw (dbg.win_data,y,63+x,"%c",ch);
+			mvwprintw (cursesDbg.win_data,y,63+x,"%c",ch);
 			add++;
 		};
 	}	
-	wrefresh(dbg.win_data);
+	wrefresh(cursesDbg.win_data);
 };
 
 static void DrawRegisters(void) {
 #if 0
 	/* Main Registers */
-	SetColor(reg_eax!=oldregs.eax);oldregs.eax=reg_eax;mvwprintw (dbg.win_reg,0,4,"%08X",reg_eax);
-	SetColor(reg_ebx!=oldregs.ebx);oldregs.ebx=reg_ebx;mvwprintw (dbg.win_reg,1,4,"%08X",reg_ebx);
-	SetColor(reg_ecx!=oldregs.ecx);oldregs.ecx=reg_ecx;mvwprintw (dbg.win_reg,2,4,"%08X",reg_ecx);
-	SetColor(reg_edx!=oldregs.edx);oldregs.edx=reg_edx;mvwprintw (dbg.win_reg,3,4,"%08X",reg_edx);
+	SetColor(reg_eax!=oldregs.eax);oldregs.eax=reg_eax;mvwprintw (cursesDbg.win_reg,0,4,"%08X",reg_eax);
+	SetColor(reg_ebx!=oldregs.ebx);oldregs.ebx=reg_ebx;mvwprintw (cursesDbg.win_reg,1,4,"%08X",reg_ebx);
+	SetColor(reg_ecx!=oldregs.ecx);oldregs.ecx=reg_ecx;mvwprintw (cursesDbg.win_reg,2,4,"%08X",reg_ecx);
+	SetColor(reg_edx!=oldregs.edx);oldregs.edx=reg_edx;mvwprintw (cursesDbg.win_reg,3,4,"%08X",reg_edx);
 
-	SetColor(reg_esi!=oldregs.esi);oldregs.esi=reg_esi;mvwprintw (dbg.win_reg,0,18,"%08X",reg_esi);
-	SetColor(reg_edi!=oldregs.edi);oldregs.edi=reg_edi;mvwprintw (dbg.win_reg,1,18,"%08X",reg_edi);
-	SetColor(reg_ebp!=oldregs.ebp);oldregs.ebp=reg_ebp;mvwprintw (dbg.win_reg,2,18,"%08X",reg_ebp);
-	SetColor(reg_esp!=oldregs.esp);oldregs.esp=reg_esp;mvwprintw (dbg.win_reg,3,18,"%08X",reg_esp);
-	SetColor(reg_eip!=oldregs.eip);oldregs.eip=reg_eip;mvwprintw (dbg.win_reg,1,42,"%08X",reg_eip);
+	SetColor(reg_esi!=oldregs.esi);oldregs.esi=reg_esi;mvwprintw (cursesDbg.win_reg,0,18,"%08X",reg_esi);
+	SetColor(reg_edi!=oldregs.edi);oldregs.edi=reg_edi;mvwprintw (cursesDbg.win_reg,1,18,"%08X",reg_edi);
+	SetColor(reg_ebp!=oldregs.ebp);oldregs.ebp=reg_ebp;mvwprintw (cursesDbg.win_reg,2,18,"%08X",reg_ebp);
+	SetColor(reg_esp!=oldregs.esp);oldregs.esp=reg_esp;mvwprintw (cursesDbg.win_reg,3,18,"%08X",reg_esp);
+	SetColor(reg_eip!=oldregs.eip);oldregs.eip=reg_eip;mvwprintw (cursesDbg.win_reg,1,42,"%08X",reg_eip);
 	
-	SetColor(SegValue(ds)!=oldsegs[ds].val);oldsegs[ds].val=SegValue(ds);mvwprintw (dbg.win_reg,0,31,"%04X",SegValue(ds));
-	SetColor(SegValue(es)!=oldsegs[es].val);oldsegs[es].val=SegValue(es);mvwprintw (dbg.win_reg,0,41,"%04X",SegValue(es));
-	SetColor(SegValue(fs)!=oldsegs[fs].val);oldsegs[fs].val=SegValue(fs);mvwprintw (dbg.win_reg,0,51,"%04X",SegValue(fs));
-	SetColor(SegValue(gs)!=oldsegs[gs].val);oldsegs[gs].val=SegValue(gs);mvwprintw (dbg.win_reg,0,61,"%04X",SegValue(gs));
-	SetColor(SegValue(ss)!=oldsegs[ss].val);oldsegs[ss].val=SegValue(ss);mvwprintw (dbg.win_reg,0,71,"%04X",SegValue(ss));
-	SetColor(SegValue(cs)!=oldsegs[cs].val);oldsegs[cs].val=SegValue(cs);mvwprintw (dbg.win_reg,1,31,"%04X",SegValue(cs));
+	SetColor(SegValue(ds)!=oldsegs[ds].val);oldsegs[ds].val=SegValue(ds);mvwprintw (cursesDbg.win_reg,0,31,"%04X",SegValue(ds));
+	SetColor(SegValue(es)!=oldsegs[es].val);oldsegs[es].val=SegValue(es);mvwprintw (cursesDbg.win_reg,0,41,"%04X",SegValue(es));
+	SetColor(SegValue(fs)!=oldsegs[fs].val);oldsegs[fs].val=SegValue(fs);mvwprintw (cursesDbg.win_reg,0,51,"%04X",SegValue(fs));
+	SetColor(SegValue(gs)!=oldsegs[gs].val);oldsegs[gs].val=SegValue(gs);mvwprintw (cursesDbg.win_reg,0,61,"%04X",SegValue(gs));
+	SetColor(SegValue(ss)!=oldsegs[ss].val);oldsegs[ss].val=SegValue(ss);mvwprintw (cursesDbg.win_reg,0,71,"%04X",SegValue(ss));
+	SetColor(SegValue(cs)!=oldsegs[cs].val);oldsegs[cs].val=SegValue(cs);mvwprintw (cursesDbg.win_reg,1,31,"%04X",SegValue(cs));
 
 	/*Individual flags*/
 	Bitu changed_flags = reg_flags ^ oldflags;
 	oldflags = reg_flags;
 
 	SetColor(changed_flags&FLAG_CF);
-	mvwprintw (dbg.win_reg,1,53,"%01X",GETFLAG(CF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,53,"%01X",GETFLAG(CF) ? 1:0);
 	SetColor(changed_flags&FLAG_ZF);
-	mvwprintw (dbg.win_reg,1,56,"%01X",GETFLAG(ZF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,56,"%01X",GETFLAG(ZF) ? 1:0);
 	SetColor(changed_flags&FLAG_SF);
-	mvwprintw (dbg.win_reg,1,59,"%01X",GETFLAG(SF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,59,"%01X",GETFLAG(SF) ? 1:0);
 	SetColor(changed_flags&FLAG_OF);
-	mvwprintw (dbg.win_reg,1,62,"%01X",GETFLAG(OF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,62,"%01X",GETFLAG(OF) ? 1:0);
 	SetColor(changed_flags&FLAG_AF);
-	mvwprintw (dbg.win_reg,1,65,"%01X",GETFLAG(AF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,65,"%01X",GETFLAG(AF) ? 1:0);
 	SetColor(changed_flags&FLAG_PF);
-	mvwprintw (dbg.win_reg,1,68,"%01X",GETFLAG(PF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,68,"%01X",GETFLAG(PF) ? 1:0);
 
 
 	SetColor(changed_flags&FLAG_DF);
-	mvwprintw (dbg.win_reg,1,71,"%01X",GETFLAG(DF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,71,"%01X",GETFLAG(DF) ? 1:0);
 	SetColor(changed_flags&FLAG_IF);
-	mvwprintw (dbg.win_reg,1,74,"%01X",GETFLAG(IF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,74,"%01X",GETFLAG(IF) ? 1:0);
 	SetColor(changed_flags&FLAG_TF);
-	mvwprintw (dbg.win_reg,1,77,"%01X",GETFLAG(TF) ? 1:0);
+	mvwprintw (cursesDbg.win_reg,1,77,"%01X",GETFLAG(TF) ? 1:0);
 
 	SetColor(changed_flags&FLAG_IOPL);
-	mvwprintw (dbg.win_reg,2,72,"%01X",GETFLAG(IOPL)>>12);
+	mvwprintw (cursesDbg.win_reg,2,72,"%01X",GETFLAG(IOPL)>>12);
 
 
 	SetColor(cpu.cpl ^ oldcpucpl);
-	mvwprintw (dbg.win_reg,2,78,"%01X",cpu.cpl);
+	mvwprintw (cursesDbg.win_reg,2,78,"%01X",cpu.cpl);
 	oldcpucpl=cpu.cpl;
 
 	if (cpu.pmode) {
-		if (reg_flags & FLAG_VM) mvwprintw(dbg.win_reg,0,76,"VM86");
-		else if (cpu.code.big) mvwprintw(dbg.win_reg,0,76,"Pr32");
-		else mvwprintw(dbg.win_reg,0,76,"Pr16");
+		if (reg_flags & FLAG_VM) mvwprintw(cursesDbg.win_reg,0,76,"VM86");
+		else if (cpu.code.big) mvwprintw(cursesDbg.win_reg,0,76,"Pr32");
+		else mvwprintw(cursesDbg.win_reg,0,76,"Pr16");
 	} else	
-		mvwprintw(dbg.win_reg,0,76,"Real");
+		mvwprintw(cursesDbg.win_reg,0,76,"Real");
 
 	// Selector info, if available
 	if ((cpu.pmode) && curSelectorName[0]) {
 		char out1[200], out2[200];
 		GetDescriptorInfo(curSelectorName,out1,out2);
-		mvwprintw(dbg.win_reg,2,28,out1);
-		mvwprintw(dbg.win_reg,3,28,out2);
+		mvwprintw(cursesDbg.win_reg,2,28,out1);
+		mvwprintw(cursesDbg.win_reg,3,28,out2);
 	}
 
-	wattrset(dbg.win_reg,0);
-	mvwprintw(dbg.win_reg,3,60,"%u       ",cycle_count);
-	wrefresh(dbg.win_reg);
+	wattrset(cursesDbg.win_reg,0);
+	mvwprintw(cursesDbg.win_reg,3,60,"%u       ",cycle_count);
+	wrefresh(cursesDbg.win_reg);
 #endif
 };
 
@@ -832,7 +839,7 @@ static void DrawCode(void) {
 		saveSel = false;
 		if (has_colors()) {
 			if ((codeViewData.useCS==SegValue(cs)) && (disEIP == reg_eip)) {
-				wattrset(dbg.win_code,COLOR_PAIR(PAIR_GREEN_BLACK));			
+				wattrset(cursesDbg.win_code,COLOR_PAIR(PAIR_GREEN_BLACK));			
 				if (codeViewData.cursorPos==-1) {
 					codeViewData.cursorPos = i; // Set Cursor 
 				}
@@ -842,35 +849,35 @@ static void DrawCode(void) {
 				}
 				saveSel = (i == codeViewData.cursorPos);
 			} else if (i == codeViewData.cursorPos) {
-				wattrset(dbg.win_code,COLOR_PAIR(PAIR_BLACK_GREY));			
+				wattrset(cursesDbg.win_code,COLOR_PAIR(PAIR_BLACK_GREY));			
 				codeViewData.cursorSeg = codeViewData.useCS;
 				codeViewData.cursorOfs = disEIP;
 				saveSel = true;
 			} else if (CBreakpoint::IsBreakpoint(codeViewData.useCS, disEIP)) {
-				wattrset(dbg.win_code,COLOR_PAIR(PAIR_GREY_RED));			
+				wattrset(cursesDbg.win_code,COLOR_PAIR(PAIR_GREY_RED));
 			} else {
-				wattrset(dbg.win_code,0);			
+				wattrset(cursesDbg.win_code,0);			
 			}
 		}
 
 
 		Bitu drawsize=size=DasmI386(dline, start, disEIP, cpu.code.big);
 		bool toolarge = false;
-		mvwprintw(dbg.win_code,i,0,"%04X:%04X  ",codeViewData.useCS,disEIP);
+		mvwprintw(cursesDbg.win_code,i,0,"%04X:%04X  ",codeViewData.useCS,disEIP);
 		
 		if (drawsize>10) { toolarge = true; drawsize = 9; };
 		for (c=0;c<drawsize;c++) {
 			Bit8u value;
 			if (mem_readb_checked(start+c,&value)) value=0;
-			wprintw(dbg.win_code,"%02X",value);
+			wprintw(cursesDbg.win_code,"%02X",value);
 		}
-		if (toolarge) { waddstr(dbg.win_code,".."); drawsize++; };
+		if (toolarge) { waddstr(cursesDbg.win_code,".."); drawsize++; };
 		// Spacepad up to 20 characters
 		if(drawsize && (drawsize < 11)) {
 			line20[20 - drawsize*2] = 0;
-			waddstr(dbg.win_code,line20);
+			waddstr(cursesDbg.win_code,line20);
 			line20[20 - drawsize*2] = ' ';
-		} else waddstr(dbg.win_code,line20);
+		} else waddstr(cursesDbg.win_code,line20);
 
 		char empty_res[] = { 0 };
 		char* res = empty_res;
@@ -878,15 +885,15 @@ static void DrawCode(void) {
 		// Spacepad it up to 28 characters
 		size_t dline_len = strlen(dline);
 		if(dline_len < 28) for (c = dline_len; c < 28;c++) dline[c] = ' '; dline[28] = 0;
-		waddstr(dbg.win_code,dline);
+		waddstr(cursesDbg.win_code,dline);
 		// Spacepad it up to 20 characters
 		size_t res_len = strlen(res);
 		if(res_len && (res_len < 21)) {
-			waddstr(dbg.win_code,res);
+			waddstr(cursesDbg.win_code,res);
 			line20[20-res_len] = 0;
-			waddstr(dbg.win_code,line20);
+			waddstr(cursesDbg.win_code,line20);
 			line20[20-res_len] = ' ';
-		} else 	waddstr(dbg.win_code,line20);
+		} else 	waddstr(cursesDbg.win_code,line20);
 		
 		start+=size;
 		disEIP+=size;
@@ -897,26 +904,26 @@ static void DrawCode(void) {
 
 	codeViewData.useEIPlast = disEIP;
 	
-	wattrset(dbg.win_code,0);
+	wattrset(cursesDbg.win_code,0);
 	if (!debugging) {
-		if (has_colors()) wattrset(dbg.win_code,COLOR_PAIR(PAIR_GREEN_BLACK));
-		mvwprintw(dbg.win_code,10,0,"%s","(Running)");
-		wclrtoeol(dbg.win_code);
+		if (has_colors()) wattrset(cursesDbg.win_code,COLOR_PAIR(PAIR_GREEN_BLACK));
+		mvwprintw(cursesDbg.win_code,10,0,"%s","(Running)");
+		wclrtoeol(cursesDbg.win_code);
 	} else {
 		//TODO long lines
 		char* dispPtr = codeViewData.inputStr; 
 		char* curPtr = &codeViewData.inputStr[codeViewData.inputPos];
-		mvwprintw(dbg.win_code,10,0,"%c-> %s%c",
+		mvwprintw(cursesDbg.win_code,10,0,"%c-> %s%c",
 			(codeViewData.ovrMode?'O':'I'),dispPtr,(*curPtr?' ':'_'));
-		wclrtoeol(dbg.win_code); // not correct in pdcurses if full line
-		mvwchgat(dbg.win_code,10,0,3,0,(PAIR_BLACK_GREY),NULL);
+		wclrtoeol(cursesDbg.win_code); // not correct in pdcurses if full line
+		mvwchgat(cursesDbg.win_code,10,0,3,0,(PAIR_BLACK_GREY),NULL);
 		if (*curPtr) {
-			mvwchgat(dbg.win_code,10,(curPtr-dispPtr+4),1,0,(PAIR_BLACK_GREY),NULL);
+			mvwchgat(cursesDbg.win_code,10,(curPtr-dispPtr+4),1,0,(PAIR_BLACK_GREY),NULL);
  		} 
 	}
 
-	wattrset(dbg.win_code,0);
-	wrefresh(dbg.win_code);
+	wattrset(cursesDbg.win_code,0);
+	wrefresh(cursesDbg.win_code);
 #endif
 }
 
@@ -1870,11 +1877,12 @@ Bitu DEBUG_Loop(void) {
 
   Bits ret;
 
-  ret = DEBUG_RemoteHandleCMD();
+  //idados ret = DEBUG_RemoteHandleCMD();
+  ret = idados_handle_command();
 
   if (ret<0) return ret;
 		if (ret>0){
-  printf("CS:IP = %x\n", GetAddress(SegValue(cs), (ulong)reg_eip));
+  printf("CS:IP = %x\n", GetAddress(SegValue(cs), (unsigned long)reg_eip));
 			ret=(*CallBack_Handlers[ret])();
 			if (ret) {
 				exitLoop=true;
@@ -1882,6 +1890,9 @@ Bitu DEBUG_Loop(void) {
 				return ret;
 			}
       }
+
+  if(idados_is_running())
+    DEBUG_Continue();
 
 	return 0; //ERIC DEBUG_CheckKeys();
 }
@@ -2231,18 +2242,13 @@ void DEBUG_SetupConsole(void) {
 	WIN32_Console();
 	#else
 	tcgetattr(0,&consolesettings);
-<<<<<<< HEAD
 	//curses must be inited first in order to catch the resize (is an event)
 //	printf("\e[8;50;80t"); //resize terminal
 //	fflush(NULL);
-=======
-	//ERIC printf("\e[8;50;80t"); //resize terminal
-	fflush(NULL);
->>>>>>> Initial dosbox patch for the ida plugin
-	#endif	
-	memset((void *)&dbg,0,sizeof(dbg));
+	#endif
+	memset((void *)&cursesDbg,0,sizeof(cursesDbg));
 	debugging=false;
-//	dbg.active_win=3;
+//	cursesDbg.active_win=3;
 	/* Start the Debug Gui */
 	DBGUI_StartUp();
 }
@@ -2281,8 +2287,8 @@ void DEBUG_Init(Section* sec) {
     
         
     /*remote init ERIC*/
-    DEBUG_RemoteInit();
-
+    //DEBUG_RemoteInit();
+    idados_init();
 }
 
 // DEBUGGING VAR STUFF
@@ -2456,11 +2462,11 @@ static void DrawVariables(void) {
 
 		int y = idx / 3;
 		int x = (idx % 3) * 26;
-		mvwprintw(dbg.win_var, y, x, dv->GetName());
-		mvwprintw(dbg.win_var, y,  (x + DEBUG_VAR_BUF_LEN + 1) , buffer);
+		mvwprintw(cursesDbg.win_var, y, x, dv->GetName());
+		mvwprintw(cursesDbg.win_var, y,  (x + DEBUG_VAR_BUF_LEN + 1) , buffer);
 	}
 
-	wrefresh(dbg.win_var);
+	wrefresh(cursesDbg.win_var);
 };
 #undef DEBUG_VAR_BUF_LEN
 // HEAVY DEBUGGING STUFF
@@ -2621,7 +2627,7 @@ bool DEBUG_HeavyIsBreakpoint(void) {
 	if (CBreakpoint::CheckBreakpoint(SegValue(cs),reg_eip)) {
 
     //ERIC
-    DEBUG_RemoteBreakpoint(where);
+    idados_hit_breakpoint(where);
 
 		return true;	
 	}
@@ -2646,6 +2652,7 @@ bool DEBUG_AddMemBreakPoint(Bit32u address)
 
 bool DEBUG_DelBreakPoint(PhysPt address)
 {
+  printf("delete breakpoint at %x\n", address);
   CBreakpoint::DeleteBreakpoint(address);
   
   return true;
@@ -2655,15 +2662,17 @@ Bits DEBUG_RemoteStep(void)
 {
   Bits ret;
 
-	r_debug.app_continue = false;
-  
+	//idados r_debug.app_continue = false;
+  idados_stopped();
+ 
 	exitLoop = false;
 	skipFirstInstruction = true; // for heavy debugger
   CPU_Cycles = 1;
   ret = (*cpudecoder)();
   //SetCodeWinStart();
   CBreakpoint::ignoreOnce = 0;
-  
+ 
+  printf("Stepping. New CS:IP = %x\n", GetAddress(SegValue(cs), (unsigned long)reg_eip));
   return ret;
 }
 
@@ -2696,7 +2705,7 @@ string DEBUG_GetFileName()
 
 void DEBUG_AppTerminated()
 {
- remote_process_terminated();
+ //idados remote_process_terminated();
 }
 
 #endif // DEBUG
