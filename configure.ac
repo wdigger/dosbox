@@ -558,7 +558,7 @@ case "$host" in
        AC_DEFINE(MACOSX, 1, [Compiling on Mac OS X])
        LIBS="$LIBS -framework CoreMIDI -framework AudioUnit -framework AudioToolbox"
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial passthrough support (Win32, Posix and OS/2).])
-       if test x$enable_debug = xida; then
+       if test x$enable_debug = xida -o x$enable_debug = xida32 -o  x$enable_debug = xida64; then
          CPPFLAGS="$CPPFLAGS -D__MAC__"
        fi
        ;;
