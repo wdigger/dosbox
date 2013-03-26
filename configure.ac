@@ -286,6 +286,9 @@ if test x$ida = xyes; then
   AC_SUBST(IDA_PLUGIN)
   IDA_LDADD="-L$with_ida_sdk/bin -lida"
   AC_SUBST(IDA_LDADD)
+  AM_CONDITIONAL(DEBUG_IDA, true)
+else
+  AM_CONDITIONAL(DEBUG_IDA, false)
 fi
 
 
