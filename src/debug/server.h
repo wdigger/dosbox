@@ -35,8 +35,8 @@
 // applications. but to debug 32-bit applications, simple 32-bit servers
 // are enough and can work with both 32-bit and 64-bit versions of ida.
 // so, there is no need to build sizeof(ea_t)==8 and sizeof(size_t)==4 servers
-#if defined(__EA64__) != defined(__X64__)
-#error "Mixed mode servers do not make sense, they should not be compiled"
-#endif
+//#if defined(__EA64__) != defined(__X64__)
+//#error "Mixed mode servers do not make sense, they should not be compiled"
+//#endif
 
 extern rpc_server_list_t clients_list;

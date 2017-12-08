@@ -229,6 +229,7 @@ AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[Enable debug mode]),[
     AC_DEFINE(C_IDA_64BIT,0)
     AC_DEFINE(C_HEAVY_DEBUG,1)
     ida=yes
+    IDA_LIB_BIT="32"
   elif test x$enable_debug = xida64; then
     AC_MSG_RESULT([Building remote debugger (64 bit)])
     AC_DEFINE(C_DEBUG,1)
@@ -236,6 +237,8 @@ AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[Enable debug mode]),[
     AC_DEFINE(C_IDA_64BIT,1)
     AC_DEFINE(C_HEAVY_DEBUG,1)
     ida=yes
+    IDA_LIB_BIT="64"
+    IDA_LIB_SUFFIX="64"
   elif test x$have_curses_lib = xyes -a x$have_curses_h = xyes ; then
     LIBS="$LIBS -lcurses"
     AC_DEFINE(C_DEBUG,1)
@@ -276,9 +279,9 @@ if test x$ida = xyes; then
   fi
   IDA_PLUGIN=$ida_plugin
   AC_SUBST(IDA_PLUGIN)
-  IDA_LDADD="-L$with_ida_sdk/bin -lida"
   AC_SUBST(IDA_LDADD)
   AM_CONDITIONAL(DEBUG_IDA, true)
+  CPPFLAGS="$CPPFLAGS -DUSE_STANDARD_FILE_FUNCTIONS -DUSE_DANGEROUS_FUNCTIONS"
 else
   AM_CONDITIONAL(DEBUG_IDA, false)
 fi
@@ -292,7 +295,6 @@ AC_ARG_ENABLE(core-inline,AC_HELP_STRING([--enable-core-inline],[Enable inlined 
   fi
 ],)
 
-
 dnl The target cpu checks for dynamic cores
 AH_TEMPLATE(C_TARGETCPU,[The type of cpu this target has])
 AC_MSG_CHECKING(for target cpu type) 
@@ -302,12 +304,19 @@ case "$host_cpu" in
     AC_MSG_RESULT(x86-64 bit compatible)
     c_targetcpu="x86_64"
     c_unalignedmemory=yes
+    if test x$ida = xyes; then
+      CPPFLAGS="$CPPFLAGS -D__X64__"
+      IDA_LIB_SELF="x64"
+    fi
     ;;
   i?86)
     AC_DEFINE(C_TARGETCPU,X86)
     AC_MSG_RESULT(x86 compatible)
     c_targetcpu="x86"
     c_unalignedmemory=yes
+    if test x$ida = xyes; then
+      IDA_LIB_SELF="x86"
+    fi
     ;;
    powerpc*)
     AC_DEFINE(C_TARGETCPU,POWERPC)
@@ -537,7 +546,7 @@ dnl Some target detection and actions for them
 case "$host" in
     *-*-cygwin* | *-*-mingw32*)
        LIBS="$LIBS -lwinmm"
-       if test x$enable_debug = xida -o x$enable_debug = xida32 -o  x$enable_debug = xida64; then
+       if test x$ida = xyes; then
          CPPFLAGS="$CPPFLAGS -D__NT__"
          LIBS="$LIBS -lwsock32 -lws2_32 -Wl,--enable-stdcall-fixup"
        fi
@@ -554,17 +563,20 @@ case "$host" in
        AC_DEFINE(MACOSX, 1, [Compiling on Mac OS X])
        LIBS="$LIBS -framework CoreMIDI -framework AudioUnit -framework AudioToolbox"
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial passthrough support (Win32, Posix and OS/2).])
-       if test x$enable_debug = xida -o x$enable_debug = xida32 -o  x$enable_debug = xida64; then
+       if test x$ida = xyes; then
          CPPFLAGS="$CPPFLAGS -D__MAC__"
+         IDA_LIB_DIR="_mac_gcc_$IDA_LIB_BIT"
+         IDA_LIB_DIR="$IDA_LIB_SELF$IDA_LIB_DIR"
        fi
        ;;
     *-*-linux*)
        AC_DEFINE(LINUX, 1, [Compiling on GNU/Linux])
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial passthrough support (Win32, Posix and OS/2).])
-       if test x$enable_debug = xida -o x$enable_debug = xida32 -o  x$enable_debug = xida64; then
+       if test x$ida = xyes; then
          CPPFLAGS="$CPPFLAGS -D__LINUX__"
+         IDA_LIB="$IDA_LIB_SELF_linux_gcc_$IDA_LIB_BIT"
        fi
-        ;;
+       ;;
     *-*-freebsd* | *-*-dragonfly* | *-*-netbsd* | *-*-openbsd*)
        dnl Disabled directserial for now. It doesn't do anything without
        dnl specifying an extra ifdef in directserial_posix.*
@@ -579,6 +591,10 @@ case "$host" in
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial passthrough support (Win32, Posix and OS/2).])
        ;;
 esac
+
+if test x$ida = xyes; then
+  IDA_LDADD="-L$with_ida_sdk/lib/$IDA_LIB_DIR -lida$IDA_LIB_SUFFIX"
+fi
 
 dnl Some stuff for the icon.
 case "$host" in

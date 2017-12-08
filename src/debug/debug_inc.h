@@ -52,7 +52,7 @@ struct DASMLine {
 	Bit32u eaoff;
 };
 
-extern DBGBlock cursesDbg;
+extern DBGBlock dbg;
 
 /* Local Debug Stuff */
 Bitu DasmI386(char* buffer, PhysPt pc, Bitu cur_ip, bool bit32);
