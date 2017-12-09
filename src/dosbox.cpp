@@ -310,7 +310,7 @@ void increaseticks() { //Make it return ticksRemain and set it in the function a
 			CPU_CycleMax = CPU_CYCLES_LOWER_LIMIT;
 	} //if (ticksScheduled >= 250 || ticksDone >= 250 || (ticksAdded > 15 && ticksScheduled >= 5) )
 
-#ifdef C_DEBUG
+#if C_DEBUG
   if(DEBUG_RemoteDataReady())
   {
     //DEBUG printf("Remote sent data.\n\n");
@@ -434,7 +434,9 @@ void DOSBOX_Init(void) {
 	Pstring = secprop->Add_path("captures",Property::Changeable::Always,"capture");
 	Pstring->Set_help("Directory where things like wave, midi, screenshot get captured.");
 
+#if C_DEBUG
 	LOG_StartUp();
+#endif
 
 	secprop->AddInitFunction(&IO_Init);//done
 	secprop->AddInitFunction(&PAGING_Init);//done
