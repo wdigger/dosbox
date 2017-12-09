@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+
+add_subdirectory(cpu)
+add_subdirectory(debug)
+add_subdirectory(dos)
+add_subdirectory(fpu)
+add_subdirectory(gui)
+add_subdirectory(hardware)
+add_subdirectory(ints)
+add_subdirectory(misc)
+#add_subdirectory(platform)
+add_subdirectory(shell)
