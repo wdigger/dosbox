@@ -104,7 +104,7 @@ void XGA_Write_Multifunc(Bitu val, Bitu len) {
 			xga.read_sel = dataval;
 			break;
 		default:
-			LOG_MSG("XGA: Unhandled multifunction command %x", regselect);
+			LOG_MSG("XGA: Unhandled multifunction command %x", (unsigned int)regselect);
 			break;
 	}
 }
@@ -325,7 +325,7 @@ void XGA_DrawLineVector(Bitu val) {
                 XGA_DrawPoint(xat,yat, destval);
 				break;
 			default: 
-				LOG_MSG("XGA: DrawLine: Needs mixmode %x", mixmode);
+				LOG_MSG("XGA: DrawLine: Needs mixmode %x", (unsigned int)mixmode);
 				break;
 		}
 		xat += sx;
@@ -429,7 +429,7 @@ void XGA_DrawLineBresenham(Bitu val) {
 
 					break;
 				default: 
-					LOG_MSG("XGA: DrawLine: Needs mixmode %x", mixmode);
+					LOG_MSG("XGA: DrawLine: Needs mixmode %x", (unsigned int)mixmode);
 					break;
 			}
 			while (e > 0) {
@@ -501,7 +501,7 @@ void XGA_DrawRectangle(Bitu val) {
                     XGA_DrawPoint(srcx,srcy, destval);
 					break;
 				default: 
-					LOG_MSG("XGA: DrawRect: Needs mixmode %x", mixmode);
+					LOG_MSG("XGA: DrawRect: Needs mixmode %x", (unsigned int)mixmode);
 					break;
 			}
 			srcx += dx;
@@ -639,7 +639,7 @@ void XGA_DrawWait(Bitu val, Bitu len) {
 						default:
 							// Let's hope they never show up ;)
 							LOG_MSG("XGA: unsupported bpp / datawidth combination %x",
-								xga.waitcmd.buswidth);
+								(unsigned int)xga.waitcmd.buswidth);
 							break;
 					};
 					break;
@@ -687,7 +687,7 @@ void XGA_DrawWait(Bitu val, Bitu len) {
 									break;
 								default:
 									LOG_MSG("XGA: DrawBlitWait: Unsupported src %x",
-										(mixmode >> 5) & 0x03);
+										(unsigned int)(mixmode >> 5) & 0x03);
 									srcval=0;
 									break;
 							}
@@ -706,7 +706,7 @@ void XGA_DrawWait(Bitu val, Bitu len) {
 					break;
 
 				default:
-					LOG_MSG("XGA: DrawBlitWait: Unhandled mixmode: %d", mixmode);
+					LOG_MSG("XGA: DrawBlitWait: Unhandled mixmode: %d", (int)mixmode);
 					break;
 			} // switch mixmode
 			break;
@@ -987,6 +987,8 @@ void XGA_SetDualReg(Bit32u& reg, Bitu val) {
 			reg = (reg&0xffff0000)|(val&0x0000ffff);
 		xga.control1 ^= 0x10;
 		break;
+	default:
+		break;
 	}
 }
 
@@ -1001,6 +1003,8 @@ Bitu XGA_GetDualReg(Bit32u reg) {
 		xga.control1 ^= 0x10;
 		if (xga.control1 & 0x10) return reg&0x0000ffff;
 		else return reg>>16;
+	default:
+		break;
 	}
 	return 0;
 }
@@ -1163,7 +1167,7 @@ void XGA_Write(Bitu port, Bitu val, Bitu len) {
 				XGA_DrawWait(val, len);
 				
 			}
-			else LOG_MSG("XGA: Wrote to port %x with %x, len %x", port, val, len);
+			else LOG_MSG("XGA: Wrote to port %x with %x, len %x", (unsigned int)port, (unsigned int)val, (unsigned int)len);
 			break;
 	}
 }

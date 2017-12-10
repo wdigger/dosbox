@@ -592,7 +592,7 @@ static void gen_fill_branch(DRC_PTR_SIZE_IM data) {
 #if C_DEBUG
 	Bit64s len=(Bit64u)cache.pos-data;
 	if (len<0) len=-len;
-	if (len>126) LOG_MSG("Big jump %d",len);
+	if (len>126) LOG_MSG("Big jump %d",(int)len);
 #endif
 	*(Bit8u*)data=(Bit8u)((Bit64u)cache.pos-data-1);
 }

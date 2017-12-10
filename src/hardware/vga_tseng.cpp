@@ -171,7 +171,7 @@ void write_p3d5_et4k(Bitu reg,Bitu val,Bitu iolen) {
 		} else vga.s3.ex_hor_overflow=(val&0x15);
 		break;
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET4K:Write to illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET4K:Write to illegal index %2X", (unsigned int)reg);
 		break;
 	}
 }
@@ -189,7 +189,7 @@ Bitu read_p3d5_et4k(Bitu reg,Bitu iolen) {
 	RESTORE_ET4K(3d4, 37);
 	RESTORE_ET4K(3d4, 3f);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET4K:Read from illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET4K:Read from illegal index %2X", (unsigned int)reg);
 		break;
 	}
 	return 0x0;
@@ -212,7 +212,7 @@ void write_p3c5_et4k(Bitu reg,Bitu val,Bitu iolen) {
 	// Unlikely to be used by games (things like ROM enable/disable and emulation of VGA vs EGA)
 	STORE_ET4K(3c4, 07);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET4K:Write to illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET4K:Write to illegal index %2X", (unsigned int)reg);
 		break;
 	}
 }
@@ -222,7 +222,7 @@ Bitu read_p3c5_et4k(Bitu reg,Bitu iolen) {
 	RESTORE_ET4K(3c4, 06);
 	RESTORE_ET4K(3c4, 07);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET4K:Read from illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET4K:Read from illegal index %2X", (unsigned int)reg);
 		break;
 	}
 	return 0x0;
@@ -275,7 +275,7 @@ void write_p3c0_et4k(Bitu reg,Bitu val,Bitu iolen) {
 	// TODO: Figure out if this has any practical use
 	STORE_ET4K(3c0, 17);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET4K:Write to illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET4K:Write to illegal index %2X", (unsigned int)reg);
 		break;
 	}
 }
@@ -285,7 +285,7 @@ Bitu read_p3c1_et4k(Bitu reg,Bitu iolen) {
 	RESTORE_ET4K(3c0, 16);
 	RESTORE_ET4K(3c0, 17);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET4K:Read from illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET4K:Read from illegal index %2X", (unsigned int)reg);
 		break;
 	}
 	return 0x0;
@@ -572,7 +572,7 @@ void write_p3d5_et3k(Bitu reg,Bitu val,Bitu iolen) {
 		break;
 
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET3K:Write to illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET3K:Write to illegal index %2X", (unsigned int)reg);
 		break;
 	}
 }
@@ -590,7 +590,7 @@ Bitu read_p3d5_et3k(Bitu reg,Bitu iolen) {
 	RESTORE_ET3K(3d4, 24);
 	RESTORE_ET3K(3d4, 25);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET3K:Read from illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:CRTC:ET3K:Read from illegal index %2X", (unsigned int)reg);
 		break;
 	}
 	return 0x0;
@@ -603,7 +603,7 @@ void write_p3c5_et3k(Bitu reg,Bitu val,Bitu iolen) {
 	STORE_ET3K(3c4, 06);
 	STORE_ET3K(3c4, 07);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET3K:Write to illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET3K:Write to illegal index %2X", (unsigned int)reg);
 		break;
 	}
 }
@@ -613,7 +613,7 @@ Bitu read_p3c5_et3k(Bitu reg,Bitu iolen) {
 	RESTORE_ET3K(3c4, 06);
 	RESTORE_ET3K(3c4, 07);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET3K:Read from illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:SEQ:ET3K:Read from illegal index %2X", (unsigned int)reg);
 		break;
 	}
 	return 0x0;
@@ -646,7 +646,7 @@ void write_p3c0_et3k(Bitu reg,Bitu val,Bitu iolen) {
 	STORE_ET3K(3c0, 16);
 	STORE_ET3K(3c0, 17);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET3K:Write to illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET3K:Write to illegal index %2X", (unsigned int)reg);
 		break;
 	}
 }
@@ -656,7 +656,7 @@ Bitu read_p3c1_et3k(Bitu reg,Bitu iolen) {
 	RESTORE_ET3K(3c0, 16);
 	RESTORE_ET3K(3c0, 17);
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET3K:Read from illegal index %2X", reg);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("VGA:ATTR:ET3K:Read from illegal index %2X", (unsigned int)reg);
 		break;
 	}
 	return 0x0;

@@ -40,7 +40,7 @@ static void IO_WriteBlocked(Bitu /*port*/,Bitu /*val*/,Bitu /*iolen*/) {
 static Bitu IO_ReadDefault(Bitu port,Bitu iolen) {
 	switch (iolen) {
 	case 1:
-		LOG(LOG_IO,LOG_WARN)("Read from port %04X",port);
+		LOG(LOG_IO,LOG_WARN)("Read from port %04X",(unsigned int)port);
 		io_readhandlers[0][port]=IO_ReadBlocked;
 		return 0xff;
 	case 2:
@@ -58,7 +58,7 @@ static Bitu IO_ReadDefault(Bitu port,Bitu iolen) {
 void IO_WriteDefault(Bitu port,Bitu val,Bitu iolen) {
 	switch (iolen) {
 	case 1:
-		LOG(LOG_IO,LOG_WARN)("Writing %02X to port %04X",val,port);
+		LOG(LOG_IO,LOG_WARN)("Writing %02X to port %04X",(unsigned int)val,(unsigned int)port);
 		io_writehandlers[0][port]=IO_WriteBlocked;
 		break;
 	case 2:
@@ -115,7 +115,7 @@ void IO_ReadHandleObject::Install(Bitu port,IO_ReadHandler * handler,Bitu mask,B
 		m_mask=mask;
 		m_range=range;
 		IO_RegisterReadHandler(port,handler,mask,range);
-	} else E_Exit("IO_readHandler already installed port %x",port);
+	} else E_Exit("IO_readHandler already installed port %x",(unsigned int)port);
 }
 
 void IO_ReadHandleObject::Uninstall(){
@@ -135,7 +135,7 @@ void IO_WriteHandleObject::Install(Bitu port,IO_WriteHandler * handler,Bitu mask
 		m_mask=mask;
 		m_range=range;
 		IO_RegisterWriteHandler(port,handler,mask,range);
-	} else E_Exit("IO_writeHandler already installed port %x",port);
+	} else E_Exit("IO_writeHandler already installed port %x",(unsigned int)port);
 }
 
 void IO_WriteHandleObject::Uninstall() {

@@ -123,13 +123,17 @@
 #cmakedefine HAVE_ALSA
 
 /* Define to 1 if you have the <inttypes.h> header file. */
+#ifndef HAVE_INTTYPES_H
 #cmakedefine HAVE_INTTYPES_H
+#endif
 
 /* Define to 1 if you have the `asound' library (-lasound). */
 #cmakedefine HAVE_LIBASOUND
 
 /* Define to 1 if you have the <memory.h> header file. */
+#ifndef HAVE_MEMORY_H
 #cmakedefine HAVE_MEMORY_H
+#endif
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #cmakedefine HAVE_NETINET_IN_H
@@ -138,16 +142,24 @@
 #cmakedefine HAVE_PWD_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
+#ifndef HAVE_STDINT_H
 #cmakedefine HAVE_STDINT_H
+#endif
 
 /* Define to 1 if you have the <stdlib.h> header file. */
+#ifndef HAVE_STDLIB_H
 #cmakedefine HAVE_STDLIB_H
+#endif
 
 /* Define to 1 if you have the <strings.h> header file. */
+#ifndef HAVE_STRINGS_H
 #cmakedefine HAVE_STRINGS_H
+#endif
 
 /* Define to 1 if you have the <string.h> header file. */
+#ifndef HAVE_STRING_H
 #cmakedefine HAVE_STRING_H
+#endif
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #cmakedefine HAVE_SYS_SOCKET_H
@@ -156,7 +168,9 @@
 #cmakedefine HAVE_SYS_STAT_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
+#ifndef HAVE_SYS_TYPES_H
 #cmakedefine HAVE_SYS_TYPES_H
+#endif
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine01 HAVE_UNISTD_H

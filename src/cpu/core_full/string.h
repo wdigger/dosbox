@@ -237,7 +237,7 @@
 		}
 		break;
 	default:
-		LOG(LOG_CPU,LOG_ERROR)("Unhandled string %d entry %X",inst.code.op,inst.entry);
+		LOG(LOG_CPU,LOG_ERROR)("Unhandled string %d entry %X",inst.code.op,(unsigned int)inst.entry);
 	}
 	/* Clean up after certain amount of instructions */
 	reg_esi&=(~add_mask);

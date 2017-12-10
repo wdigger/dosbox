@@ -145,9 +145,9 @@ class Capture {
 	Bit32u	lastTicks;			//Last ticks when last last cmd was added
 	Bit8u	buf[1024];	//16 added for delay commands and what not
 	Bit32u	bufUsed;
-	Bit8u	cmd[2];				//Last cmd's sent to either ports
-	bool	doneOpl3;
-	bool	doneDualOpl2;
+//	Bit8u	cmd[2];				//Last cmd's sent to either ports
+//	bool	doneOpl3;
+//	bool	doneDualOpl2;
 
 	RegisterCache* cache;
 
@@ -628,6 +628,7 @@ void OPL_Write(Bitu port,Bitu val,Bitu iolen) {
 /*
 	Save the current state of the operators as instruments in an reality adlib tracker file
 */
+/*
 static void SaveRad() {
 	char b[16 * 1024];
 	int w = 0;
@@ -666,7 +667,7 @@ static void SaveRad() {
 	fwrite( b, 1, w, handle );
 	fclose( handle );
 };
-
+*/
 
 static void OPL_SaveRawEvent(bool pressed) {
 	if (!pressed)
@@ -735,6 +736,8 @@ Module::Module( Section* configuration ) : Module_base(configuration) {
 		break;
 	case OPL_opl3gold:
 		Init( Adlib::MODE_OPL3GOLD );
+		break;
+	default:
 		break;
 	}
 	//0x388 range

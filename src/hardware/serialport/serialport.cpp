@@ -19,6 +19,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <sstream>
 
 #include "dosbox.h"
 
@@ -202,7 +203,7 @@ void CSerial::log_ser(bool active, char const* format,...) {
 		// copied from DEBUG_SHOWMSG
 		char buf[512];
 		buf[0]=0;
-		sprintf(buf,"%12.3f [% 7u] ",PIC_FullIndex(), SDL_GetTicks());
+		sprintf(buf,"%12.3f [%7u] ",PIC_FullIndex(), GetTicks());
 		va_list msg;
 		va_start(msg,format);
 		vsprintf(buf+strlen(buf),format,msg);
@@ -271,8 +272,8 @@ void CSerial::handleEvent(Bit16u type) {
 		case SERIAL_ERRMSG_EVENT: {
 			LOG_MSG("Serial%d: Errors: "\
 				"Framing %d, Parity %d, Overrun RX:%d (IF0:%d), TX:%d, Break %d",
-				COMNUMBER, framingErrors, parityErrors, overrunErrors,
-				overrunIF0,txOverrunErrors, breakErrors);
+				(int)COMNUMBER, (int)framingErrors, (int)parityErrors, (int)overrunErrors,
+				(int)overrunIF0,(int)txOverrunErrors, (int)breakErrors);
 			errormsg_pending=false;
 			framingErrors=0;
 			parityErrors=0;
@@ -1140,8 +1141,9 @@ CSerial::CSerial(Bitu id, CommandLine* cmd) {
 bool CSerial::getBituSubstring(const char* name,Bitu* data, CommandLine* cmd) {
 	std::string tmpstring;
 	if(!(cmd->FindStringBegin(name,tmpstring,false))) return false;
-	const char* tmpchar=tmpstring.c_str();
-	if(sscanf(tmpchar,"%u",data)!=1) return false;
+	std::stringstream ss(tmpstring);
+	ss >> *data;
+	if(ss.fail()) return false;
 	return true;
 }
 
@@ -1265,7 +1267,7 @@ public:
 				serialports[i] = NULL;
 			} else {
 				serialports[i] = NULL;
-				LOG_MSG("Invalid type for serial%d",i+1);
+				LOG_MSG("Invalid type for serial%d",(int)i+1);
 			}
 			if(serialports[i]) biosParameter[i] = serial_baseaddr[i];
 		} // for 1-4

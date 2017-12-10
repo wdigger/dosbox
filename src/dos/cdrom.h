@@ -28,15 +28,17 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+
+#include <SDL.h>
+#include <SDL_thread.h>
+
+#if defined(C_SDL_SOUND)
+#include <SDL_sound.h>
+#endif
+
 #include "dosbox.h"
 #include "mem.h"
 #include "mixer.h"
-#include "SDL.h"
-#include "SDL_thread.h"
-
-#if defined(C_SDL_SOUND)
-#include "SDL_sound.h"
-#endif
 
 #define RAW_SECTOR_SIZE		2352
 #define COOKED_SECTOR_SIZE	2048

@@ -107,7 +107,7 @@ static void write_crtc_data_other(Bitu /*port*/,Bitu val,Bitu /*iolen*/) {
 		vga.other.lightpen |= (Bit8u)val;
 		break;
 	default:
-		LOG(LOG_VGAMISC,LOG_NORMAL)("MC6845:Write %X to illegal index %x",val,vga.other.index);
+		LOG(LOG_VGAMISC,LOG_NORMAL)("MC6845:Write %X to illegal index %x",(unsigned int)val,vga.other.index);
 	}
 }
 static Bitu read_crtc_data_other(Bitu /*port*/,Bitu /*iolen*/) {
@@ -380,6 +380,8 @@ static void write_cga_color_select(Bitu val) {
 	case M_TEXT:
 		vga.tandy.border_color = val & 0xf;
 		vga.attr.overscan_color = 0;
+		break;
+	default:
 		break;
 	}
 }

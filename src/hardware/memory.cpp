@@ -107,13 +107,13 @@ public:
 		flags=PFLAG_READABLE|PFLAG_HASROM;
 	}
 	void writeb(PhysPt addr,Bitu val){
-		LOG(LOG_CPU,LOG_ERROR)("Write %x to rom at %x",val,addr);
+		LOG(LOG_CPU,LOG_ERROR)("Write %x to rom at %x",(unsigned int)val,addr);
 	}
 	void writew(PhysPt addr,Bitu val){
-		LOG(LOG_CPU,LOG_ERROR)("Write %x to rom at %x",val,addr);
+		LOG(LOG_CPU,LOG_ERROR)("Write %x to rom at %x",(unsigned int)val,addr);
 	}
 	void writed(PhysPt addr,Bitu val){
-		LOG(LOG_CPU,LOG_ERROR)("Write %x to rom at %x",val,addr);
+		LOG(LOG_CPU,LOG_ERROR)("Write %x to rom at %x",(unsigned int)val,addr);
 	}
 };
 
@@ -560,7 +560,7 @@ public:
 			LOG_MSG("Stick with the default values unless you are absolutely certain.");
 		}
 		MemBase = new Bit8u[memsize*1024*1024];
-		if (!MemBase) E_Exit("Can't allocate main memory of %d MB",memsize);
+		if (!MemBase) E_Exit("Can't allocate main memory of %d MB",(int)memsize);
 		/* Clear the memory, as new doesn't always give zeroed memory
 		 * (Visual C debug mode). We want zeroed memory though. */
 		memset((void*)MemBase,0,memsize*1024*1024);

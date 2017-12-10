@@ -16,6 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <SDL.h>
 
 #include "dosbox.h"
 #include "callback.h"
@@ -25,7 +26,6 @@
 #include "regs.h"
 #include "inout.h"
 #include "dos_inc.h"
-#include "SDL.h"
 
 /* SDL by default treats numlock and scrolllock different from all other keys.
  * In recent versions this can disabled by a environment variable which we set in sdlmain.cpp

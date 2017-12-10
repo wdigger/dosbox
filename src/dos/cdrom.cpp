@@ -25,8 +25,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <SDL.h>
+
 #include "dosbox.h"
-#include "SDL.h"
 #include "support.h"
 #include "cdrom.h"
 

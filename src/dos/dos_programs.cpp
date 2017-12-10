@@ -17,19 +17,19 @@
  */
 
 
-#include "dosbox.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <string>
 #include <vector>
+#include "cdrom.h"
+#include "dosbox.h"
 #include "programs.h"
 #include "support.h"
 #include "drives.h"
 #include "cross.h"
 #include "regs.h"
 #include "callback.h"
-#include "cdrom.h"
 #include "dos_system.h"
 #include "dos_inc.h"
 #include "bios.h"
@@ -1490,7 +1490,7 @@ void KEYB::Run(void) {
 					WriteOut(MSG_Get("PROGRAM_KEYB_SHOWHELP"));
 					break;
 				default:
-					LOG(LOG_DOSMISC,LOG_ERROR)("KEYB:Invalid returncode %x",keyb_error);
+					LOG(LOG_DOSMISC,LOG_ERROR)("KEYB:Invalid returncode %x",(unsigned int)keyb_error);
 					break;
 			}
 		}

@@ -187,7 +187,7 @@ static void counter_latch(Bitu counter) {
 		p->read_latch&=0xfffe;
 		break;
 	default:
-		LOG(LOG_PIT,LOG_ERROR)("Illegal Mode %d for reading counter %d",p->mode,counter);
+		LOG(LOG_PIT,LOG_ERROR)("Illegal Mode %d for reading counter %d",p->mode,(int)counter);
 		p->read_latch=0xffff;
 		break;
 	}

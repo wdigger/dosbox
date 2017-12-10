@@ -142,7 +142,7 @@ static void write_p60(Bitu port,Bitu val,Bitu iolen) {
 			break;
 		default:
 			/* Just always acknowledge strange commands */
-			LOG(LOG_KEYBOARD,LOG_ERROR)("60:Unhandled command %X",val);
+			LOG(LOG_KEYBOARD,LOG_ERROR)("60:Unhandled command %X",(unsigned int)val);
 			KEYBOARD_AddBuffer(0xfa);	/* Acknowledge */
 		}
 		return;
@@ -207,7 +207,7 @@ static void write_p64(Bitu port,Bitu val,Bitu iolen) {
 		keyb.command=CMD_SETOUTPORT;
 		break;
 	default:
-		LOG(LOG_KEYBOARD,LOG_ERROR)("Port 64 write with val %d",val);
+		LOG(LOG_KEYBOARD,LOG_ERROR)("Port 64 write with val %d",(int)val);
 		break;
 	}
 }

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(DOSBox)
 set(PROJECT_VERSION "0.75")
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32" CACHE STRING "c++ flags")
+#set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -m32" CACHE STRING "c flags")
+
 find_package(SDL REQUIRED)
 find_package(Curses REQUIRED)
 

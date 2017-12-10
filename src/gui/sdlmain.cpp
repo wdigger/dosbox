@@ -32,8 +32,9 @@
 #include <process.h>
 #endif
 
-#include "cross.h"
 #include "SDL.h"
+
+#include "cross.h"
 
 #include "dosbox.h"
 #include "video.h"
@@ -301,9 +302,11 @@ void GFX_SetTitle(Bit32s cycles,Bits frameskip,bool paused){
 	SDL_WM_SetCaption(title,VERSION);
 }
 
+#if !defined(MACOSX)
 static unsigned char logo[32*32*4]= {
 #include "dosbox_logo.h"
 };
+#endif
 static void GFX_SetIcon() {
 #if !defined(MACOSX)
 	/* Set Icon (must be done before any sdl_setvideomode call) */
@@ -325,6 +328,7 @@ static void KillSwitch(bool pressed) {
 	throw 1;
 }
 
+#if C_DEBUG != 1
 static void PauseDOSBox(bool pressed) {
 	if (!pressed)
 		return;
@@ -360,6 +364,7 @@ static void PauseDOSBox(bool pressed) {
 		}
 	}
 }
+#endif
 
 #if defined (WIN32)
 bool GFX_SDLUsingWinDIB(void) {
@@ -451,13 +456,14 @@ void GFX_ForceFullscreenExit(void) {
 	}
 }
 
+#if C_OPENGL
 static int int_log2 (int val) {
     int log = 0;
     while ((val >>= 1) != 0)
 	log++;
     return log;
 }
-
+#endif
 
 static SDL_Surface * GFX_SetupSurfaceScaled(Bit32u sdl_flags, Bit32u bpp) {
 	Bit16u fixedWidth;
@@ -2144,4 +2150,12 @@ void GFX_GetSize(int &width, int &height, bool &fullscreen) {
 	width = sdl.draw.width;
 	height = sdl.draw.height;
 	fullscreen = sdl.desktop.fullscreen;
+}
+
+unsigned int GetTicks() {
+	return SDL_GetTicks();
+}
+
+void wrap_delay(unsigned int delay) {
+	SDL_Delay(delay);
 }

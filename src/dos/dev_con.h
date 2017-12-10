@@ -111,6 +111,13 @@ bool device_CON::Read(Bit8u * data,Bit16u * size) {
 	return true;
 }
 
+static Bit8u CURSOR_POS_COL(Bit8u page) {
+	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2);
+}
+
+static Bit8u CURSOR_POS_ROW(Bit8u page) {
+	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2+1);
+}
 
 bool device_CON::Write(Bit8u * data,Bit16u * size) {
 	Bit16u count=0;

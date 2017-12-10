@@ -228,7 +228,7 @@ bool GetDescriptorInfo(char* selname, char* out1, char* out2)
 	if (cpu.gdt.GetDescriptor(sel,desc)) {
 		switch (desc.Type()) {
 			case DESC_TASK_GATE:
-				sprintf(out1,"%s: s:%08X type:%02X p",selname,desc.GetSelector(),desc.saved.gate.type);
+				sprintf(out1,"%s: s:%08X type:%02X p",selname,(unsigned int)desc.GetSelector(),desc.saved.gate.type);
 				sprintf(out2,"    TaskGate   dpl : %01X %1X",desc.saved.gate.dpl,desc.saved.gate.p);
 				return true;
 			case DESC_LDT:
@@ -237,23 +237,23 @@ bool GetDescriptorInfo(char* selname, char* out1, char* out2)
 			case DESC_386_TSS_A:
 			case DESC_386_TSS_B:
 				sprintf(out1,"%s: b:%08X type:%02X pag",selname,desc.GetBase(),desc.saved.seg.type);
-				sprintf(out2,"    l:%08X dpl : %01X %1X%1X%1X",desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.g);
+				sprintf(out2,"    l:%08X dpl : %01X %1X%1X%1X",(unsigned int)desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.g);
 				return true;
 			case DESC_286_CALL_GATE:
 			case DESC_386_CALL_GATE:
-				sprintf(out1,"%s: s:%08X type:%02X p params: %02X",selname,desc.GetSelector(),desc.saved.gate.type,desc.saved.gate.paramcount);
-				sprintf(out2,"    o:%08X dpl : %01X %1X",desc.GetOffset(),desc.saved.gate.dpl,desc.saved.gate.p);
+				sprintf(out1,"%s: s:%08X type:%02X p params: %02X",selname,(unsigned int)desc.GetSelector(),desc.saved.gate.type,desc.saved.gate.paramcount);
+				sprintf(out2,"    o:%08X dpl : %01X %1X",(unsigned int)desc.GetOffset(),desc.saved.gate.dpl,desc.saved.gate.p);
 				return true;
 			case DESC_286_INT_GATE:
 			case DESC_286_TRAP_GATE:
 			case DESC_386_INT_GATE:
 			case DESC_386_TRAP_GATE:
-				sprintf(out1,"%s: s:%08X type:%02X p",selname,desc.GetSelector(),desc.saved.gate.type);
-				sprintf(out2,"    o:%08X dpl : %01X %1X",desc.GetOffset(),desc.saved.gate.dpl,desc.saved.gate.p);
+				sprintf(out1,"%s: s:%08X type:%02X p",selname,(unsigned int)desc.GetSelector(),desc.saved.gate.type);
+				sprintf(out2,"    o:%08X dpl : %01X %1X",(unsigned int)desc.GetOffset(),desc.saved.gate.dpl,desc.saved.gate.p);
 				return true;
 		}
 		sprintf(out1,"%s: b:%08X type:%02X parbg",selname,desc.GetBase(),desc.saved.seg.type);
-		sprintf(out2,"    l:%08X dpl : %01X %1X%1X%1X%1X%1X",desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.r,desc.saved.seg.big,desc.saved.seg.g);
+		sprintf(out2,"    l:%08X dpl : %01X %1X%1X%1X%1X%1X",(unsigned int)desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.r,desc.saved.seg.big,desc.saved.seg.g);
 		return true;
 	} else {
 		strcpy(out1,"                                     ");
@@ -364,10 +364,10 @@ private:
 };
 
 CBreakpoint::CBreakpoint(void):
-location(0),oldData(0xCC),
-active(false),once(false),
-segment(0),offset(0),intNr(0),ahValue(0),alValue(0),
-type(BKPNT_UNKNOWN) { };
+type(BKPNT_UNKNOWN),location(0),oldData(0xCC),
+segment(0),offset(0),intNr(0),
+ahValue(0),alValue(0),active(false),once(false)
+{ };
 
 void CBreakpoint::Activate(bool _active)
 {
@@ -679,7 +679,6 @@ bool DEBUG_Breakpoint(void)
 	/* First get the physical address and check for a set Breakpoint */
 	if (!CBreakpoint::CheckBreakpoint(SegValue(cs),reg_eip)) return false;
 	// Found. Breakpoint is valid
-	PhysPt where=GetAddress(SegValue(cs),reg_eip);
 	CBreakpoint::DeactivateBreakpoints();	// Deactivate all breakpoints
 	return true;
 };
@@ -1871,7 +1870,7 @@ Bitu DEBUG_Loop(void) {
 	Bit16u oldCS	= SegValue(cs);
 	Bit32u oldEIP	= reg_eip;
 	PIC_runIRQs();
-	SDL_Delay(1);
+	wrap_delay(1);
 	if ((oldCS!=SegValue(cs)) || (oldEIP!=reg_eip)) {
 		CBreakpoint::AddBreakpoint(oldCS,oldEIP,true);
 		CBreakpoint::ActivateBreakpointsExceptAt(SegPhys(cs)+reg_eip);
@@ -2004,12 +2003,12 @@ static void LogGDT(void)
 	PhysPt address = cpu.gdt.GetBase();
 	PhysPt max	   = address + length;
 	Bitu i = 0;
-	LOG(LOG_MISC,LOG_ERROR)("GDT Base:%08X Limit:%08X",address,length);
+	LOG(LOG_MISC,LOG_ERROR)("GDT Base:%08X Limit:%08X",address,(unsigned int)length);
 	while (address<max) {
 		desc.Load(address);
-		sprintf(out1,"%04X: b:%08X type: %02X parbg",(i<<3),desc.GetBase(),desc.saved.seg.type);
+		sprintf(out1,"%04X: b:%08X type: %02X parbg",(unsigned int)(i<<3),desc.GetBase(),desc.saved.seg.type);
 		LOG(LOG_MISC,LOG_ERROR)("%s",out1);
-		sprintf(out1,"      l:%08X dpl : %01X  %1X%1X%1X%1X%1X",desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.r,desc.saved.seg.big,desc.saved.seg.g);
+		sprintf(out1,"      l:%08X dpl : %01X  %1X%1X%1X%1X%1X",(unsigned int)desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.r,desc.saved.seg.big,desc.saved.seg.g);
 		LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 		address+=8; i++;
 	};
@@ -2024,12 +2023,12 @@ static void LogLDT(void) {
 	PhysPt address = desc.GetBase();
 	PhysPt max	   = address + length;
 	Bitu i = 0;
-	LOG(LOG_MISC,LOG_ERROR)("LDT Base:%08X Limit:%08X",address,length);
+	LOG(LOG_MISC,LOG_ERROR)("LDT Base:%08X Limit:%08X",address,(unsigned int)length);
 	while (address<max) {
 		desc.Load(address);
-		sprintf(out1,"%04X: b:%08X type: %02X parbg",(i<<3)|4,desc.GetBase(),desc.saved.seg.type);
+		sprintf(out1,"%04X: b:%08X type: %02X parbg",(unsigned int)(i<<3)|4,desc.GetBase(),desc.saved.seg.type);
 		LOG(LOG_MISC,LOG_ERROR)("%s",out1);
-		sprintf(out1,"      l:%08X dpl : %01X  %1X%1X%1X%1X%1X",desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.r,desc.saved.seg.big,desc.saved.seg.g);
+		sprintf(out1,"      l:%08X dpl : %01X  %1X%1X%1X%1X%1X",(unsigned int)desc.GetLimit(),desc.saved.seg.dpl,desc.saved.seg.p,desc.saved.seg.avl,desc.saved.seg.r,desc.saved.seg.big,desc.saved.seg.g);
 		LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 		address+=8; i++;
 	};
@@ -2041,7 +2040,7 @@ static void LogIDT(void) {
 	Bitu address = 0;
 	while (address<256*8) {
 		if (cpu.idt.GetDescriptor(address,desc)) {
-			sprintf(out1,"%04X: sel:%04X off:%02X",address/8,desc.GetSelector(),desc.GetOffset());
+			sprintf(out1,"%04X: sel:%04X off:%02X",(unsigned int)address/8,(unsigned int)desc.GetSelector(),(unsigned int)desc.GetOffset());
 			LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 		}
 		address+=8;
@@ -2077,10 +2076,10 @@ void LogPages(char* selname) {
 				X86PageEntry entry;
 				Bitu entry_addr=(table.block.base<<12)+(sel & 0x3ff)*4;
 				entry.load=phys_readd(entry_addr);
-				sprintf(out1,"page %05Xxxx -> %04Xxxx  flags [puw] %x:%x::%x:%x::%x:%x",sel,entry.block.base,entry.block.p,table.block.p,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+				sprintf(out1,"page %05Xxxx -> %04Xxxx  flags [puw] %x:%x::%x:%x::%x:%x",(unsigned int)sel,entry.block.base,entry.block.p,table.block.p,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
 				LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 			} else {
-				sprintf(out1,"pagetable %03X not present, flags [puw] %x::%x::%x",(sel >> 10),table.block.p,table.block.us,table.block.wr);
+				sprintf(out1,"pagetable %03X not present, flags [puw] %x::%x::%x",(unsigned int)(sel >> 10),table.block.p,table.block.us,table.block.wr);
 				LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 			}
 		}
@@ -2089,24 +2088,24 @@ void LogPages(char* selname) {
 
 static void LogCPUInfo(void) {
 	char out1[512];
-	sprintf(out1,"cr0:%08X cr2:%08X cr3:%08X  cpl=%x",cpu.cr0,paging.cr2,paging.cr3,cpu.cpl);
+	sprintf(out1,"cr0:%08X cr2:%08X cr3:%08X  cpl=%x",(unsigned int)cpu.cr0,(unsigned int)paging.cr2,(unsigned int)paging.cr3,(unsigned int)cpu.cpl);
 	LOG(LOG_MISC,LOG_ERROR)("%s",out1);
-	sprintf(out1,"eflags:%08X [vm=%x iopl=%x nt=%x]",reg_flags,GETFLAG(VM)>>17,GETFLAG(IOPL)>>12,GETFLAG(NT)>>14);
+	sprintf(out1,"eflags:%08X [vm=%x iopl=%x nt=%x]",(unsigned int)reg_flags,(unsigned int)GETFLAG(VM)>>17,(unsigned int)GETFLAG(IOPL)>>12,(unsigned int)GETFLAG(NT)>>14);
 	LOG(LOG_MISC,LOG_ERROR)("%s",out1);
-	sprintf(out1,"GDT base=%08X limit=%08X",cpu.gdt.GetBase(),cpu.gdt.GetLimit());
+	sprintf(out1,"GDT base=%08X limit=%08X",cpu.gdt.GetBase(),(unsigned int)cpu.gdt.GetLimit());
 	LOG(LOG_MISC,LOG_ERROR)("%s",out1);
-	sprintf(out1,"IDT base=%08X limit=%08X",cpu.idt.GetBase(),cpu.idt.GetLimit());
+	sprintf(out1,"IDT base=%08X limit=%08X",cpu.idt.GetBase(),(unsigned int)cpu.idt.GetLimit());
 	LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 
 	Bitu sel=CPU_STR();
 	Descriptor desc;
 	if (cpu.gdt.GetDescriptor(sel,desc)) {
-		sprintf(out1,"TR selector=%04X, base=%08X limit=%08X*%X",sel,desc.GetBase(),desc.GetLimit(),desc.saved.seg.g?0x4000:1);
+		sprintf(out1,"TR selector=%04X, base=%08X limit=%08X*%X",(unsigned int)sel,desc.GetBase(),(unsigned int)desc.GetLimit(),desc.saved.seg.g?0x4000:1);
 		LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 	}
 	sel=CPU_SLDT();
 	if (cpu.gdt.GetDescriptor(sel,desc)) {
-		sprintf(out1,"LDT selector=%04X, base=%08X limit=%08X*%X",sel,desc.GetBase(),desc.GetLimit(),desc.saved.seg.g?0x4000:1);
+		sprintf(out1,"LDT selector=%04X, base=%08X limit=%08X*%X",(unsigned int)sel,desc.GetBase(),(unsigned int)desc.GetLimit(),desc.saved.seg.g?0x4000:1);
 		LOG(LOG_MISC,LOG_ERROR)("%s",out1);
 	}
 };

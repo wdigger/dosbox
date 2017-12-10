@@ -296,6 +296,14 @@ filling:
 	} 
 }
 
+static Bit8u CURSOR_POS_COL(Bit8u page) {
+	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2);
+}
+
+static Bit8u CURSOR_POS_ROW(Bit8u page) {
+	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2+1);
+}
+
 void INT10_SetActivePage(Bit8u page) {
 	Bit16u mem_address;
 	if (page>7) LOG(LOG_INT10,LOG_ERROR)("INT10_SetActivePage page %d",page);
@@ -609,6 +617,8 @@ void INT10_WriteChar(Bit8u chr,Bit8u attr,Bit8u page,Bit16u count,bool showattr)
 			case MCH_PCJR:
 				page=0;
 				pospage=0;
+				break;
+			default:
 				break;
 		}
 	}

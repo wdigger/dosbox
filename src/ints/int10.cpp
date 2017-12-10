@@ -30,6 +30,14 @@ Int10Data int10;
 static Bitu call_10;
 static bool warned_ff=false;
 
+static Bit8u CURSOR_POS_COL(Bit8u page) {
+	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2);
+}
+
+static Bit8u CURSOR_POS_ROW(Bit8u page) {
+	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2+1);
+}
+
 static Bitu INT10_Handler(void) {
 #if 0
 	switch (reg_ah) {

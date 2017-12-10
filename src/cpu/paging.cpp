@@ -145,7 +145,7 @@ void PAGING_PageFault(PhysPt lin_addr,Bitu page_addr,Bitu faultcode) {
 	cpudecoder=&PageFaultCore;
 	paging.cr2=lin_addr;
 	PF_Entry * entry=&pf_queue.entries[pf_queue.used++];
-	LOG(LOG_PAGING,LOG_NORMAL)("PageFault at %X type [%x] queue %d",lin_addr,faultcode,pf_queue.used);
+	LOG(LOG_PAGING,LOG_NORMAL)("PageFault at %X type [%x] queue %d",lin_addr,(unsigned int)faultcode,(int)pf_queue.used);
 //	LOG_MSG("EAX:%04X ECX:%04X EDX:%04X EBX:%04X",reg_eax,reg_ecx,reg_edx,reg_ebx);
 //	LOG_MSG("CS:%04X EIP:%08X SS:%04x SP:%08X",SegValue(cs),reg_eip,SegValue(ss),reg_esp);
 	entry->cs=SegValue(cs);
@@ -160,7 +160,7 @@ void PAGING_PageFault(PhysPt lin_addr,Bitu page_addr,Bitu faultcode) {
 #endif
 	DOSBOX_RunMachine();
 	pf_queue.used--;
-	LOG(LOG_PAGING,LOG_NORMAL)("Left PageFault for %x queue %d",lin_addr,pf_queue.used);
+	LOG(LOG_PAGING,LOG_NORMAL)("Left PageFault for %x queue %d",lin_addr,(int)pf_queue.used);
 	memcpy(&lflags,&old_lflags,sizeof(LazyFlags));
 	cpudecoder=old_cpudecoder;
 //	LOG_MSG("SS:%04x SP:%08X",SegValue(ss),reg_esp);
@@ -369,7 +369,7 @@ public:
 			}
 			if (priv_check==3) {
 				LOG(LOG_PAGING,LOG_NORMAL)("Page access denied: cpl=%i, %x:%x:%x:%x",
-					cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+					(int)cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
 				PAGING_PageFault(lin_addr,(table.block.base<<12)+(lin_page & 0x3ff)*4,0x05 | (writing?0x02:0x00));
 				priv_check=0;
 			}
@@ -431,7 +431,7 @@ public:
 			if (InitPage_CheckUseraccess(entry.block.us,table.block.us) ||
 					(((entry.block.wr==0) || (table.block.wr==0)) && writing)) {
 				LOG(LOG_PAGING,LOG_NORMAL)("Page access denied: cpl=%i, %x:%x:%x:%x",
-					cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+					(int)cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
 				paging.cr2=lin_addr;
 				cpu.exception.which=EXCEPTION_PF;
 				cpu.exception.error=0x05 | (writing?0x02:0x00);
@@ -532,7 +532,7 @@ public:
 			InitPageCheckPresence(lin_addr,true,table,entry);
 
 			LOG(LOG_PAGING,LOG_NORMAL)("Page access denied: cpl=%i, %x:%x:%x:%x",
-				cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+				(int)cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
 			PAGING_PageFault(lin_addr,(table.block.base<<12)+(lin_page & 0x3ff)*4,0x07);
 
 			if (!table.block.a) {
@@ -563,7 +563,7 @@ public:
 
 			if (InitPage_CheckUseraccess(entry.block.us,table.block.us) || (((entry.block.wr==0) || (table.block.wr==0)))) {
 				LOG(LOG_PAGING,LOG_NORMAL)("Page access denied: cpl=%i, %x:%x:%x:%x",
-					cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
+					(int)cpu.cpl,entry.block.us,table.block.us,entry.block.wr,table.block.wr);
 				paging.cr2=lin_addr;
 				cpu.exception.which=EXCEPTION_PF;
 				cpu.exception.error=0x07;

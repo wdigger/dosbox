@@ -18,8 +18,8 @@
 
 
 #include <string.h>
-#include "dosbox.h"
 #include "cdrom.h"
+#include "dosbox.h"
 
 #if defined (OS2)
 #define INCL_DOSFILEMGR

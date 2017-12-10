@@ -149,14 +149,6 @@ typedef struct {
 
 extern Int10Data int10;
 
-static Bit8u CURSOR_POS_COL(Bit8u page) {
-	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2);
-}
-
-static Bit8u CURSOR_POS_ROW(Bit8u page) {
-	return real_readb(BIOSMEM_SEG,BIOSMEM_CURSOR_POS+page*2+1);
-}
-
 bool INT10_SetVideoMode(Bit16u mode);
 void INT10_SetCurMode(void);
 

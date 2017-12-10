@@ -209,7 +209,7 @@ void PCSPEAKER_SetCounter(Bitu cntr,Bitu mode) {
 		break;
 	default:
 #if C_DEBUG
-		LOG_MSG("Unhandled speaker mode %d",mode);
+		LOG_MSG("Unhandled speaker mode %d",(int)mode);
 #endif
 		return;
 	}
